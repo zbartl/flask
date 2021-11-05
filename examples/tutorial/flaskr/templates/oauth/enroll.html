@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Enroll{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<div>
+    <header>
+        <div class="about">please save these in a safe location, you won't be able to see them again</div>
+    </header>
+    <p class="body">
+        <label for="public_key">public key</label>
+        <div name="public_key" id="public_key">{{public_key}}</div>
+        <label for="public_key">secret key</label>
+        <div name="secret_key" id="secret_key">{{secret_key}}</div>
+    </p>
+</div>
+{% endblock %}
