@@ -1,6 +1,7 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify, request
+from open_flask_auth import OpenFlaskAuth
 
 
 def create_app(test_config=None):
@@ -26,20 +27,36 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route("/hello")
-    def hello():
-        return "Hello, World!"
-
     # register the database commands
     from flaskr import db
-
     db.init_app(app)
 
-    # apply the blueprints to the app
-    from flaskr import auth, blog
+    # oauth setup
+    oauth_provider = OpenFlaskAuth(app, "secret")
+    oauth_provider.register_routes()
 
+    @app.route('/hello')
+    @oauth_provider.require_oauth('/hello')
+    def hello():
+        return 'Hello, World!'
+
+    @app.route('/posts')
+    @oauth_provider.require_oauth('/posts')
+    def list_posts():
+        data = []
+        posts = blog.list_posts()
+        for row in posts:
+            data.append((list(row)))
+        return jsonify(posts=data)
+
+    # apply the blueprints to the app
+    from flaskr import auth, blog, oauth
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
+
+    # apply oauth blueprint
+    oauth = oauth.OAuth(oauth_provider)
+    app.register_blueprint(oauth.bp)
 
     # make url_for('index') == url_for('blog.index')
     # in another app, you might define a separate main index here with

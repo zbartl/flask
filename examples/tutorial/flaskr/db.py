@@ -4,6 +4,7 @@ import click
 from flask import current_app
 from flask import g
 from flask.cli import with_appcontext
+from open_flask_auth import OpenFlaskAuthDbProvider
 
 
 def get_db():
@@ -36,6 +37,9 @@ def init_db():
 
     with current_app.open_resource("schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
+
+    oauth_db_provider = OpenFlaskAuthDbProvider(current_app)
+    oauth_db_provider.init_db()
 
 
 @click.command("init-db")
